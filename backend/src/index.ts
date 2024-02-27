@@ -6,7 +6,7 @@ app.use(express.json());
 
 const port = 3000;
 
-const ads = [
+let ads = [
   {
     id: 1,
     title: "Bike to sell",
@@ -48,6 +48,21 @@ app.post("/ads", (req, res) => {
   ads.push(ad);
   console.log(ad);
   res.send("Request received, check the backend terminal")
+});
+
+app.delete("/ad/:id", (req, res) => {
+  const adId = parseInt(req.params.id);
+  ads = ads.filter(ad => ad.id !== adId);
+  res.send("The ad was deleted");
+});
+
+app.put("/ad/:id", (req, res) => {
+  const adId = parseInt(req.params.id);
+  ads = ads.map(ad => {
+    if (ad.id !== adId) return ad;
+    return {...req.body, id: adId};
+  })
+  res.send("The ad was updated");
 });
 
 app.listen(port, () => {
