@@ -2,12 +2,15 @@ import {
   BaseEntity,
   Column,
   Entity,
-  PrimaryGeneratedColumn
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
+import { Category } from './Category';
 
 
 @Entity()
-export class Ad  {
+export class Ad extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -31,5 +34,10 @@ export class Ad  {
 
   @Column()
   createdAt: Date;
+
+  @ManyToOne(() => Category, category => category.ads)
+  @JoinColumn({ name: 'category_id' })
+  category: Category;
+
 }
 

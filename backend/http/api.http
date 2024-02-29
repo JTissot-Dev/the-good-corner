@@ -6,6 +6,10 @@ GET http://localhost:3000/ads
 
 ###
 
+GET http://localhost:3000/ads?category=voiture
+
+###
+
 POST http://localhost:3000/ads
 Content-Type: application/json
 
@@ -22,12 +26,11 @@ Content-Type: application/json
 
 ###
 
-
-DELETE http://localhost:3000/ads/2
+DELETE http://localhost:3000/ads/28
 
 ###
 
-PUT http://localhost:3000/ads/27
+PUT http://localhost:3000/ads/25
 Content-Type: application/json
 
 {
