@@ -10,11 +10,11 @@ GET http://localhost:3000/ads?category=voiture
 
 ###
 
-GET http://localhost:3000/ads?tags=toto
+GET http://localhost:3000/ads?tags=jeans
 
 ###
 
-GET http://localhost:3000/ads?tags=toto&category=vêtement
+GET http://localhost:3000/ads?tags=fashion&category=vêtement
 
 ###
 
@@ -30,17 +30,17 @@ Content-Type: application/json
     "picture": "https://www.automobile-magazine.fr/asset/cms/34973/config/28294/apres-plusieurs-prototypes-la-bollore-bluecar-a-fini-par-devoiler-sa-version-definitive.jpg",
     "location": "Paris",
     "createdAt": "2023-10-05",
-    "category": "voiture",
-    "tags": ["car", "blue", "new", "sell"]
+    "category": "vêtement",
+    "tags": ["jeans", "fashion"]
   }
 
 ###
 
-DELETE http://localhost:3000/ads/28
+DELETE http://localhost:3000/ads/1
 
 ###
 
-PUT http://localhost:3000/ads/66
+PUT http://localhost:3000/ads/2
 Content-Type: application/json
 
 {
@@ -52,7 +52,7 @@ Content-Type: application/json
   "picture": "https://images.lecho.be/view?iid=dc:113129565&context=ONLINE&ratio=16/9&width=640&u=1508242455000",
   "location": "Paris",
   "createdAt": "2023-10-05T10:14:15.922Z",
-  "category": "vêtement",
+  "category": "voiture",
   "tags": ["toto", "wheel"]
 }
 
@@ -70,4 +70,4 @@ GET http://localhost:3000/tags?name=whe
 
 ###
 
-DELETE http://localhost:3000/tags/99
+DELETE http://localhost:3000/tags/11
