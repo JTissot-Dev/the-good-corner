@@ -1,7 +1,9 @@
 import "reflect-metadata";
 import express from "express";
 import { dataSource } from "./database/database";
+import { Like } from "typeorm";
 import { Ad } from "./models/Ad";
+import { Category } from "./models/Category";
 
 
 const app = express();
@@ -15,6 +17,7 @@ app.get("/", (req, res) => {
   res.send("Hello World");
 });
 
+// *** Route ads
 app.get("/ads", async (req, res) => {
   const categoryParam = req.query.category.toString();
   if (categoryParam) {
@@ -36,8 +39,17 @@ app.get("/ads", async (req, res) => {
 });
 
 
-app.post("/ads", (req, res) => {
+app.post("/ads", async (req, res) => {
   const postAd = req.body;
+
+  const category = await Category.findOne({
+    where: {
+      name: postAd.category,
+    },
+    relations: {
+      ads: true,
+    }
+  });
 
   const ad = new Ad();
   ad.title = postAd.title;
@@ -46,7 +58,8 @@ app.post("/ads", (req, res) => {
   ad.price = postAd.price;
   ad.picture = postAd.picture;
   ad.location = postAd.location;
-  ad.createdAt = postAd.createdAt;
+  ad.category = category;
+
   ad.save();
 
   res.status(201).send();
@@ -61,6 +74,16 @@ app.delete("/ads/:id", (req, res) => {
 app.put("/ads/:id", async (req, res) => {
   const adId = parseInt(req.params.id);
   const postAd = req.body;
+
+  const category = await Category.findOne({
+    where: {
+      name: postAd.category,
+    },
+    relations: {
+      ads: true,
+    }
+  });
+
   const ad = await Ad.findOneBy({id: adId});
   ad.title = postAd.title;
   ad.description = postAd.description;
@@ -69,9 +92,29 @@ app.put("/ads/:id", async (req, res) => {
   ad.picture = postAd.picture;
   ad.location = postAd.location;
   ad.createdAt = postAd.createdAt;
+  ad.category = category;
+
   ad.save();
 
   res.status(200).send();
+});
+
+// *** Route categories
+app.get("/categories", async (req, res) => {
+
+  const name = req.query.name;
+
+  if (name) {
+    const categories = await Category.find({
+      where: {
+        name: Like(`%${name}%`),
+      }
+    });
+    return res.status(200).send(categories);
+  }
+
+  const categories = await Category.find();
+  res.status(200).send(categories);
 });
 
 app.listen(port, async () => {

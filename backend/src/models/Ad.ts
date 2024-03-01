@@ -5,6 +5,7 @@ import {
   PrimaryGeneratedColumn,
   ManyToOne,
   JoinColumn,
+  BeforeInsert,
 } from 'typeorm';
 import { Category } from './Category';
 
@@ -34,6 +35,11 @@ export class Ad extends BaseEntity {
 
   @Column()
   createdAt: Date;
+
+  @BeforeInsert()
+  updateCreateDate() {
+    this.createdAt = new Date();
+  }
 
   @ManyToOne(() => Category, category => category.ads)
   @JoinColumn({ name: 'category_id' })
