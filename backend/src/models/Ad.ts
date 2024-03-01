@@ -4,10 +4,12 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   ManyToOne,
+  ManyToMany,
   JoinColumn,
   BeforeInsert,
 } from 'typeorm';
 import { Category } from './Category';
+import { Tag } from './Tag';
 
 
 @Entity()
@@ -41,9 +43,12 @@ export class Ad extends BaseEntity {
     this.createdAt = new Date();
   }
 
-  @ManyToOne(() => Category, category => category.ads)
+  @ManyToOne(() => Category, category => category.ads, { cascade: true })
   @JoinColumn({ name: 'category_id' })
   category: Category;
+
+  @ManyToMany(() => Tag, (tag) => tag.ads)
+  tags: Tag[];
 
 }
 
