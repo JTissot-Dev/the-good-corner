@@ -6,7 +6,7 @@ import {
   ManyToOne,
   ManyToMany,
   JoinColumn,
-  BeforeInsert,
+  BeforeInsert
 } from 'typeorm';
 import { Category } from './Category';
 import { Tag } from './Tag';
@@ -43,11 +43,16 @@ export class Ad extends BaseEntity {
     this.createdAt = new Date();
   }
 
-  @ManyToOne(() => Category, category => category.ads, { cascade: true })
+  @ManyToOne(() => Category, category => category.ads, { 
+    cascade: true,
+  })
   @JoinColumn({ name: 'category_id' })
   category: Category;
 
-  @ManyToMany(() => Tag, (tag) => tag.ads)
+  @ManyToMany(() => Tag, (tag) => tag.ads, { 
+    cascade: true,
+    eager: true
+  })
   tags: Tag[];
 
 }

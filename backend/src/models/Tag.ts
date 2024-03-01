@@ -17,7 +17,10 @@ export class Tag extends BaseEntity {
   @Column({ length: 50 })
   name: string;
 
-  @ManyToMany(() => Ad, (ad) => ad.tags)
+  @ManyToMany(() => Ad, (ad) => ad.tags, { 
+    onDelete: 'CASCADE',
+    orphanedRowAction: 'delete'
+  })
   @JoinTable()
   ads: Ad[];
 }
