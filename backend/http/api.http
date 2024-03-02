@@ -27,9 +27,8 @@ Content-Type: application/json
       "My car is blue, working fine. I'm selling it because I've got a new one",
     "owner": "car.seller@gmail.com",
     "price": 10000,
-    "picture": "https://www.automobile-magazine.fr/asset/cms/34973/config/28294/apres-plusieurs-prototypes-la-bollore-bluecar-a-fini-par-devoiler-sa-version-definitive.jpg",
+    "picture": "https://www.automobile-magazine.fr",
     "location": "Paris",
-    "createdAt": "2023-10-05",
     "category": "vêtement",
     "tags": ["jeans", "fashion"]
   }
@@ -40,7 +39,7 @@ DELETE http://localhost:3000/ads/5
 
 ###
 
-PUT http://localhost:3000/ads/2
+PUT http://localhost:3000/ads/7
 Content-Type: application/json
 
 {
@@ -51,7 +50,6 @@ Content-Type: application/json
   "price": 30000,
   "picture": "https://images.lecho.be/view?iid=dc:113129565&context=ONLINE&ratio=16/9&width=640&u=1508242455000",
   "location": "Paris",
-  "createdAt": "2023-10-05T10:14:15.922Z",
   "category": "voiture",
   "tags": ["toto", "wheel"]
 }
@@ -63,6 +61,10 @@ GET http://localhost:3000/categories
 ###
 
 GET http://localhost:3000/categories?name=v
+
+###
+
+GET http://localhost:3000/tags
 
 ###
 
