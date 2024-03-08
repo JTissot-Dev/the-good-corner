@@ -1,24 +1,28 @@
-GET http://localhost:3000/
+GET http://localhost:4000/
 
 ###
 
-GET http://localhost:3000/ads
+GET http://localhost:4000/ads
 
 ###
 
-GET http://localhost:3000/ads?category=voiture
+GET http://localhost:4000/ads/11
 
 ###
 
-GET http://localhost:3000/ads?tags=jeans
+GET http://localhost:4000/ads?category=voiture
 
 ###
 
-GET http://localhost:3000/ads?tags=fashion&category=vêtement
+GET http://localhost:4000/ads?tags=jeans
 
 ###
 
-POST http://localhost:3000/ads
+GET http://localhost:4000/ads?tags=fashion&category=vêtement
+
+###
+
+POST http://localhost:4000/ads
 Content-Type: application/json
 
   {
@@ -35,11 +39,11 @@ Content-Type: application/json
 
 ###
 
-DELETE http://localhost:3000/ads/5
+DELETE http://localhost:4000/ads/5
 
 ###
 
-PUT http://localhost:3000/ads/7
+PUT http://localhost:4000/ads/7
 Content-Type: application/json
 
 {
@@ -47,7 +51,7 @@ Content-Type: application/json
   "description":
     "My car is blue, working fine. I'm selling it because I've got a new one",
   "owner": "car.seller@gmail.com",
-  "price": 30000,
+  "price": 40000,
   "picture": "https://images.lecho.be/view?iid=dc:113129565&context=ONLINE&ratio=16/9&width=640&u=1508242455000",
   "location": "Paris",
   "category": "voiture",
@@ -56,20 +60,30 @@ Content-Type: application/json
 
 ###
 
-GET http://localhost:3000/categories
+GET http://localhost:4000/categories
 
 ###
 
-GET http://localhost:3000/categories?name=v
+POST http://localhost:4000/categories
+Content-Type: application/json
+
+{
+  "name": "Moto"
+
+}
 
 ###
 
-GET http://localhost:3000/tags
+GET http://localhost:4000/categories?name=v
 
 ###
 
-GET http://localhost:3000/tags?name=whe
+GET http://localhost:4000/tags
 
 ###
 
-DELETE http://localhost:3000/tags/11
+GET http://localhost:4000/tags?name=whe
+
+###
+
+DELETE http://localhost:4000/tags/11

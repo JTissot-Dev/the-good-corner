@@ -1,73 +1,118 @@
 import styles from './Header.module.css';
+import { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import axios from 'axios';
 
-const categories = [
-  {
-    title: "Ameublement",
-    link: "/categories/ameublement",
-  },
-  {
-    title: "Electroménager",
-    link: "/categories/electroménager",
-  },
-  {
-    title: "Photographie",
-    link: "/categories/photographie",
-  },
-  {
-    title: "Informatique",
-    link: "/categories/informatique",
-  },
-  {
-    title: "Téléphonie",
-    link: "/categories/téléphonie",
-  },
-  {
-    title: "Vélos",
-    link: "/categories/velos",
-  },
-  {
-    title: "Véhicules",
-    link: "/categories/véhicules",
-  },
-  {
-    title: "Sport",
-    link: "/categories/sport",
-  },
-  {
-    title: "Habillement",
-    link: "/categories/habilllement",
-  },
-  {
-    title: "Bébé",
-    link: "/categories/bébé",
-  },
-  {
-    title: "Outillage",
-    link: "/categories/outillage",
-  },
-  {
-    title: "Services",
-    link: "/categories/services",
-  },
-  {
-    title: "Vacances",
-    link: "/categories/vacances",
-  },
-];
+// const categories = [
+//   {
+//     title: "Ameublement",
+//     link: "/categories/ameublement",
+//   },
+//   {
+//     title: "Electroménager",
+//     link: "/categories/electroménager",
+//   },
+//   {
+//     title: "Photographie",
+//     link: "/categories/photographie",
+//   },
+//   {
+//     title: "Informatique",
+//     link: "/categories/informatique",
+//   },
+//   {
+//     title: "Téléphonie",
+//     link: "/categories/téléphonie",
+//   },
+//   {
+//     title: "Vélos",
+//     link: "/categories/velos",
+//   },
+//   {
+//     title: "Véhicules",
+//     link: "/categories/véhicules",
+//   },
+//   {
+//     title: "Sport",
+//     link: "/categories/sport",
+//   },
+//   {
+//     title: "Habillement",
+//     link: "/categories/habilllement",
+//   },
+//   {
+//     title: "Bébé",
+//     link: "/categories/bébé",
+//   },
+//   {
+//     title: "Outillage",
+//     link: "/categories/outillage",
+//   },
+//   {
+//     title: "Services",
+//     link: "/categories/services",
+//   },
+//   {
+//     title: "Vacances",
+//     link: "/categories/vacances",
+//   },
+// ];
+
+export type Category = {
+  id: number,
+  name: string,
+};
 
 const Header = () => {
+
+  const [categories, setCategories] = useState<Category[]>([]);
+  // const [searchTitle, setSearchTitle] = useState<string>("");
+  const router = useRouter();
+
+  // const handleSearchTitle = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   setSearchTitle(e.target.value);
+  // };
+
+  const titleRef = useRef<HTMLInputElement>(null);
+
+  const handleSearch = () => {
+    console.log(titleRef.current?.value);
+    router.push(`/ad/search?title=${titleRef.current?.value}`);
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const {data} = await axios.get<Category[]>("http://localhost:4000/categories");
+        setCategories(data);
+      } catch (err) {
+        console.error("error", err);
+      }
+    }
+    fetchData();
+  }, []);
+
   return (
     <header className={styles.header}>
       <div className={styles.mainMenu}>
         <h1>
-          <a href="/" className={`${styles.button} ${styles.logo} ${styles.linkButton}`}
+          <Link href="/" className={`${styles.button} ${styles.logo} ${styles.linkButton}`}
             ><span className={styles.mobileShortLabel}>TGC</span
-            ><span className={styles.desktopLongLabel}>THE GOOD CORNER</span></a
-          >
+            ><span className={styles.desktopLongLabel}>THE GOOD CORNER</span>
+          </Link>
         </h1>
         <form className={styles.textFieldWithButton}>
-          <input className={`${styles.textField} ${styles.mainSearchField}`} type="search" />
-          <button className={`${styles.button} ${styles.buttonPrimary}`}>
+          <input 
+            ref={titleRef}
+            className={`${styles.textField} ${styles.mainSearchField}`} 
+            type="search" 
+          />
+          <button 
+            type="button"
+            className={`${styles.button} ${styles.buttonPrimary}`}
+            onClick={handleSearch}
+          >
             <svg
               aria-hidden="true"
               width="16"
@@ -85,21 +130,20 @@ const Header = () => {
             </svg>
           </button>
         </form>
-        <a href="/post-ad" className={`${styles.button} ${styles.linkButton}`}
+        <Link href="/ad/new" className={`${styles.button} ${styles.linkButton}`}
           ><span className={styles.mobileShortLabel}>Publier</span
-          ><span className={styles.desktopLongLabel}>Publier une annonce</span></a
-        >
+          ><span className={styles.desktopLongLabel}>Publier une annonce</span>
+        </Link>
       </div>
       <nav className={styles.categoryNavigation}>
         {
           categories.map(category => {
             return (
-              <>
-                <a 
-                  key={category.title}
-                  href={category.link} 
-                  className={styles.categoryNavigationLink}>{category.title}</a> •
-              </>
+              <Link 
+                key={category.id}
+                href={`/?categories=${category.name}`}
+                className={styles.categoryNavigationLink}>{category.name}
+              </Link>
             )
           })
         }

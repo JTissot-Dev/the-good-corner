@@ -1,5 +1,5 @@
 import express from 'express';
-import { In } from 'typeorm';
+import { In, Like } from 'typeorm';
 import { validate } from 'class-validator';
 import AdData from '../types/AdData';
 import { Ad } from '../models/Ad';
@@ -9,16 +9,43 @@ import { Tag } from '../models/Tag';
 
 const adWs = express.Router();
 
-adWs.get("/ads", async (req, res) => {
+adWs.get("/ads/:id?", async (req, res) => {
 
   try {
+
+    const adId: number = parseInt(req.params.id);
 
     const categoryParam: string | undefined = req.query.category && 
     req.query.category.toString();
 
+    const titleParam: string | undefined = req.query.title && 
+    req.query.title.toString();
+
     const tagsParam: string[] = req.query.tags ? 
       req.query.tags.toString().split(",") : 
       [];
+    
+    if (adId) {
+      const ad = await Ad.findOne({
+        relations: {
+          category: true,
+        },
+        where: {
+          id: adId,
+        }
+      
+      });
+      return res.status(200).send(ad);
+    }
+
+    if (titleParam) {
+      const ads: Ad[] = await Ad.find({
+        where: {
+          title: Like(`%${titleParam}%`),
+        },
+      });
+      return res.status(200).send(ads);
+    }
 
     if (categoryParam && tagsParam.length === 0) {
       const ads: Ad[] = await Ad.find({
@@ -103,7 +130,7 @@ adWs.post("/ads", async (req, res) => {
     ad.title = postAd.title;
     ad.description = postAd.description;
     ad.owner = postAd.owner;
-    ad.price = postAd.price;
+    ad.price = Number(postAd.price);
     ad.picture = postAd.picture;
     ad.location = postAd.location;
     ad.category = category;
@@ -142,7 +169,7 @@ adWs.put("/ads/:id", async (req, res) => {
       }
     });
   
-    const tags: Tag[] = req.body.tags.map(async tag => {
+    const tags: Tag[] = req.body.tags ? req.body.tags.map(async tag => {
       const tagFound = await Tag.findOneBy({ name: tag});
       if (tagFound) return;
   
@@ -150,13 +177,13 @@ adWs.put("/ads/:id", async (req, res) => {
       newTag.name = tag;
       await newTag.save();
       return newTag;
-    });
+    }) : [];
   
     const ad: Ad = await Ad.findOneBy({id: adId});
     ad.title = putAd.title;
     ad.description = putAd.description;
     ad.owner = putAd.owner;
-    ad.price = putAd.price;
+    ad.price = Number(putAd.price);
     ad.picture = putAd.picture;
     ad.location = putAd.location;
     ad.category = category;

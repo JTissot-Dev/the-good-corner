@@ -34,4 +34,26 @@ categoryWs.get("/categories", async (req, res) => {
 
 });
 
+
+categoryWs.post("/categories", (req, res) => {
+  
+    try {
+  
+      const { name } = req.body;
+  
+      const category = new Category();
+      category.name = name;
+  
+      category.save();
+  
+      res.status(201).send(category);
+  
+    } catch(error) {
+  
+      console.log(error);
+      res.status(500).send();
+  
+    }
+})
+
 export default categoryWs;
