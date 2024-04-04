@@ -3,6 +3,54 @@ import axios from "axios";
 import { AdCardProps } from "@/components/AdCard/AdCard";
 import { Category } from "@/components/Header/Header";
 import { useRouter } from "next/router";
+import { gql, useQuery, useMutation } from "@apollo/client";
+
+const GET_AD = gql`
+  query Ad($id: Float!) {
+    ad(id: $id) {
+      id
+      title
+      picture
+      price
+      description
+      owner
+      createdAt
+      location
+      category {
+        id
+        name
+      }
+    }
+  }
+`;
+
+const GET_CATEGORIES = gql`
+  query {
+    categories {
+      id
+      name
+    }
+  }
+`;
+
+const UP_AD = gql`
+  mutation UpAd($updata: AdInput!, $upAdId: Float!) {
+    upAd(data: $updata, id: $upAdId) {
+      id
+      title
+      picture
+      price
+      description
+      owner
+      createdAt
+      location
+      category {
+        id
+        name
+      }
+    }
+  }
+`;
 
 
 const updateAd = () => {
@@ -22,35 +70,22 @@ const updateAd = () => {
       name: ""
     }
   });
-  const [categories, setCategories] = useState<Category[]>([]);
+
+  const { loading, error, data: dataAd } = useQuery(GET_AD, {
+    variables: { id: Number(router.query.id) },
+  });
+
+  const { data: dataCategories } = useQuery(GET_CATEGORIES);
+  const [upAd] = useMutation(UP_AD);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const {data} = await axios.get<Category[]>("http://localhost:4000/categories");
-        setCategories(data);
-      } catch (err) {
-        console.error("error", err);
-      }
-      
-    };
-    fetchData();
-  }, []);
+    if (dataAd) {
+      setAd(dataAd.ad);
+    }
+  }, [dataAd]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-
-      try {
-        const {data} = await axios.get<AdCardProps>(`http://localhost:4000/ads/${router.query.id}`);
-        setAd(data);
-      } catch (err) {
-        console.error("error", err);
-      }
-
-    };
-    fetchData();
-  
-  }, [])
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error : { error.message }</p>;
 
   const handleAd = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setAd({
@@ -66,7 +101,23 @@ const updateAd = () => {
       const form = e.target as HTMLFormElement
       const formData = new FormData(form as HTMLFormElement);
       const formJson = Object.fromEntries(formData.entries());
-      await axios.put(`http://localhost:4000/ads/${ad.id}`, formJson)
+
+      const formMutationData = {
+        title: formJson.title,
+        description: formJson.description,
+        owner: formJson.owner,
+        price: Number(formJson.price),
+        picture: formJson.picture,
+        location: formJson.location,
+        categoryName: formJson.category
+      };
+
+      await upAd({
+        variables: {
+          updata: formMutationData,
+          upAdId: Number(ad.id)
+        }
+      });
       router.push("/");
     }}
   >
@@ -105,9 +156,9 @@ const updateAd = () => {
       value={ad.category?.name}
       name="category"
     >
-      {categories.map(category => {
+      {dataCategories && dataCategories.categories.map((category: any) => {
         return (
-          <option  key={category.id} value={category.name}>
+          <option key={category.id} value={category.name}>
             {category.name}
           </option>
         )

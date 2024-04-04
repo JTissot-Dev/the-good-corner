@@ -1,25 +1,53 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { Category } from "@/components/Header/Header";
+import { gql, useQuery, useMutation } from "@apollo/client";
 
+const ADD_AD = gql`
+  mutation addAd($data: AdInput!) {
+    addAd(data: $data) {
+      id
+      title
+      price
+      picture
+    }
+  }
+`;
+
+const GET_CATEGORIES = gql`
+  query {
+    categories {
+      id
+      name
+    }
+  }
+`;
 
 const newAd = () => {
 
-  const [categories, setCategories] = useState<Category[]>([]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const {data} = await axios.get<Category[]>("http://localhost:4000/categories");
-        console.log(data)
-        setCategories(data);
-      } catch (err) {
-        console.error("error", err);
-      }
-      
-    };
-    fetchData();
-  }, []);
+  const { data } = useQuery(GET_CATEGORIES);
+  const [addAd] = useMutation(ADD_AD, {
+    update(cache, { data: { addAd } }) {
+      cache.modify({
+        fields: {
+          ads(existingAds = []) {
+            const newAdRef = cache.writeFragment({
+              data: addAd,
+              fragment: gql`
+                fragment NewAd on Ads {
+                  id
+                  title
+                  price
+                  picture
+                }
+              `
+            });
+            return [...existingAds, newAdRef];
+          }
+        }
+      });
+    }
+  });
 
   return (
     <form
@@ -28,7 +56,20 @@ const newAd = () => {
         const form = e.target as HTMLFormElement
         const formData = new FormData(form as HTMLFormElement);
         const formJson = Object.fromEntries(formData.entries());
-        axios.post("http://localhost:4000/ads", formJson)
+        const formMutationData = {
+          title: formJson.title,
+          description: formJson.description,
+          owner: formJson.owner,
+          price: Number(formJson.price),
+          picture: formJson.picture,
+          location: formJson.location,
+          categoryName: formJson.category
+        };
+        addAd({
+          variables: {
+            data: formMutationData
+          }
+        });
         form.reset();
       }}
     >
@@ -63,7 +104,7 @@ const newAd = () => {
         </input>
       </label>  <br />
       <select name="category">
-        {categories.map(category => {
+        {data && data.categories.map((category: any) => {
           return (
             <option  key={category.id} value={category.name}>
               {category.name}

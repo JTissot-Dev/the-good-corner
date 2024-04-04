@@ -1,54 +1,76 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { AdCardProps } from "@/components/AdCard/AdCard";
+import { gql, useQuery, useMutation } from "@apollo/client";
 import axios from "axios";
+
+const GET_AD = gql`
+  query Ad($id: Float!) {
+    ad(id: $id) {
+      id
+      title
+      picture
+      price
+      description
+      owner
+      createdAt
+      location
+      category {
+        id
+        name
+      }
+    }
+  }
+`;
+
+const DEL_AD = gql`
+  mutation DelAd($delAdId: Float!) {
+    delAd(id: $delAdId) {
+      id
+    }
+  }
+`
 
 const AdDetailComponent = () => {
   const router = useRouter();
-  const [ad, setAd] = useState<AdCardProps>({
-    id: 0,
-    title: "",
-    picture: "",
-    price: 0,
-    description: "",
-    owner: "",
-    createdAt: "",
-    location: "",
-    category: {
-      id: 0,
-      name: ""
+
+  const { loading, error, data } = useQuery(GET_AD, {
+    variables: { id: Number(router.query.id) }
+  });
+
+  const [delAd] = useMutation(DEL_AD, {
+    variables: { delAdId: Number(router.query.id) },
+    update(cache, { data: { delAd } }) {
+      cache.modify({
+        fields: {
+          ads(existingAds = []) {
+            return existingAds.filter(
+              (adRef: any) => adRef.__ref !== `Ad:${delAd.id}`
+            );
+          }
+        }
+      });
     }
   });
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const result = await axios.get<AdCardProps>(`http://localhost:4000/ads/${router.query.id}`);
-      setAd(result.data);
-    };
-    fetchData();
-  }, []);
-
-const deleteAd = async () => {
-  await axios.delete(`http://localhost:4000/ads/${router.query.id}`);
-  router.push("/");
-};
-
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error : { error.message }</p>;
   
   return (
     <>
-      <h2 className="ad-details-title">{ ad.title }</h2>
+      <h2 className="ad-details-title">{ data.ad.title }</h2>
       <section className="ad-details">
         <div className="ad-details-image-container">
           <img className="ad-details-image" src="/images/table.webp" />
         </div>
         <div className="ad-details-info">
-          <div className="ad-details-price">{ ad.price } €</div>
+          <div className="ad-details-price">{ data.ad.price } €</div>
           <div className="ad-details-description">
-            { ad.description }
+            { data.ad.description }
           </div>
           <hr className="separator" />
           <div className="ad-details-owner">
-            Annoncée publiée par <b>{ad.owner}</b> le { ad.createdAt }.
+            Annoncée publiée par <b>{data.ad.owner}</b> le { data.ad.createdAt }.
           </div>
           <a
             href="mailto:serge@serge.com"
@@ -71,7 +93,10 @@ const deleteAd = async () => {
             Envoyer un email
           </a>
           <button
-            onClick={deleteAd}
+            onClick={async () => {
+              await delAd();
+              router.push("/");
+            }}
             className="button button-danger"
           >
             Supprimer l'annonce
