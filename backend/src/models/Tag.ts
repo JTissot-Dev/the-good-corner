@@ -7,17 +7,21 @@ import {
   JoinTable,
 } from 'typeorm';
 import { Ad } from './Ad';
+import { Field, ObjectType } from 'type-graphql';
 
 
 @Entity()
+@ObjectType()
 export class Tag extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Field(_type => String)
   @Column({ length: 50 })
   name: string;
 
-  @ManyToMany(() => Ad, (ad) => ad.tags, { 
+  @Field(_type => [Ad])
+  @ManyToMany(_type => Ad, (ad) => ad.tags, { 
     onDelete: 'CASCADE',
     orphanedRowAction: 'delete'
   })

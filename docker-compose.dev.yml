@@ -1,0 +1,41 @@
+services:
+  database:
+    container_name: tgcdb
+    image: postgres
+    restart: always
+    volumes: 
+      - ./database:/var/lib/postgresql/data
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'"]
+      interval: 30s
+      timeout: 60s
+      retries: 5
+      start_period: 80s
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+  backend:
+    build: ./backend
+    volumes: 
+      - ./backend/src:/app
+    ports:
+      - "4000:4000"
+    depends_on:
+      database:
+        condition: service_healthy
+    env_file:
+      - .env
+    command: sh -c "npm run migration:up && npm run start"
+  frontend:
+    build: ./frontend_boilerplate-main
+    volumes: 
+      - ./frontend_boilerplate-main/src:/app
+      - ./frontend_boilerplate-main/public:/app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
